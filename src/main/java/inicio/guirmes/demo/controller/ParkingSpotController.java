@@ -1,10 +1,17 @@
 package inicio.guirmes.demo.controller;
 
+import inicio.guirmes.demo.DTOs.ParkingSpotDto;
+import inicio.guirmes.demo.model.ParkingSpotModel;
 import inicio.guirmes.demo.repository.ParkingSpotRepository;
 import inicio.guirmes.demo.service.ParkingSpotService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -17,5 +24,11 @@ public class ParkingSpotController {
         this.parkingSpotService = parkingSpotService;
     }
 
-
+    @PostMapping
+    public ResponseEntity<Object> createParkingControl(@RequestBody @Valid ParkingSpotDto parkingSpotDto){
+        ParkingSpotModel parkingSpotModel = new ParkingSpotModel();
+        BeanUtils.copyProperties(parkingSpotDto, parkingSpotModel);//conversão em dto para o model
+        parkingSpotModel.setRegistrationDate(LocalDateTime.now(ZoneId.of("UTC")));
+        return ResponseEntity.status(HttpStatus.CREATED).body(parkingSpotService.save(parkingSpotModel));
+    }
 }
